@@ -1,7 +1,5 @@
 const mongoose = require('mongoose');
-const nameOfDB = "appName";
-const server = process.env.DB || 'mongodb://localhost/'+nameOfDB;
-mongoose.connect(server, function(err) {
+mongoose.connect('mongodb://Overlord:BobRoss420@ds043982.mlab.com:43982/alehub', function(err) {
   if (err) {
     console.log("Error Connecting");
   } else {

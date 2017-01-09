@@ -1,10 +1,13 @@
 const User = require("../models/user")
 const jwt = require('jwt-simple');
 const config = require('../config');
+const mongoose = require("mongoose");
+
 function tokenForUser(user) {
   const time = new Date().getTime();
-  return jwt.encode({ sub: user.id, iat: time }, config.goldcoin)
+  return jwt.encode({ sub: user.email, iat: time }, config.goldcoin)
 }
+
 exports.signup = function(req, res, next) {
   // Check for All Variables
   if (!req.body.email || !req.body.password) {
@@ -24,19 +27,25 @@ exports.signup = function(req, res, next) {
       email: email,
       password: password
     });
-      // IF User does NOT exist, create and save User
-    user.save(function(err) {
-      if (err) {
-        return next(err);
+    User.findById(user._id, function(err, existingUser) {
+      if (existingUser) {
+      // IF Email contains a User, Run Error
+        return res.status(422).send({statusMessage: "ID is in use."})
       }
-        //Respond to request indicating the user was created
-      res.status(200).json({statusMessage: "Success, User Created!", token: tokenForUser(user)});
+        // IF User does NOT exist, create and save User
+      user.save(function(err) {
+        if (err) {
+          return next(err);
+        }
+          //Respond to request indicating the user was created
+          console.log("Created User");
+        return res.status(200).json({statusMessage: "Success, User Created!", token: tokenForUser(user)});
+      })
     })
   })
 };
 
 //Logged In: Recieve token
 exports.login = function(req, res, next) {
-  res.status(200).send({statusMessage: "Success, User Found!", token: tokenForUser(req.user)});
+  return res.status(200).send({statusMessage: "Success, User Found!", token: tokenForUser(req.user)});
 }
-// Check for Current Logged In Status

@@ -29,7 +29,7 @@ const jwtOptions = {
 //Create JWT Strategy
 const jwtLogin = new JwtStrategy(jwtOptions, function(payload, done) {
   //See if user ID is in DATABASE
-  User.findById(payload.sub, function(err, user) {
+  User.findOne({"email": payload.sub}, function(err, user) {
     if (err) {return done(err, false);}
     if (user) {
     //call done with user
